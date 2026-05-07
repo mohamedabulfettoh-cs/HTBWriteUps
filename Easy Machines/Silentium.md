@@ -10,13 +10,13 @@ Fuff and gobuster as usual, you will find a subdomain called staging, head there
 
 At the login page there is a forget password button, click it and you will need an email. Hmm, how do you get that? I manually tested the names of the silentium leadership. ben@silentium.htb was the one. Now in your sweet burp suite you will check out the response and there will be the password reset token in the tempToken field, you can just use it in the GUI in the reset password section since you may have to try a few times before you change ben's password into a valid password. (One uppercase, 8 letters minimum, atleast one special character), I changed it to Ben12345:). Then you will log in into the staging environment.
 
-![[attachments/Pasted image 20260414180405.png|Pasted image 20260414180405.png]]
+![attachments/Pasted image 20260414180405.png|Pasted image 20260414180405.png](attachments/Pasted image 20260414180405.png|Pasted image 20260414180405.png)
 
 # User Flag
 
 Here you will see what the staging environment has to offer, but really the thing that stands out the most is the API key, there is one already there so I thought I have to use it somewhere to exploit another CVE or so.
 
-![[attachments/Pasted image 20260414181919.png|Pasted image 20260414181919.png]]
+![attachments/Pasted image 20260414181919.png|Pasted image 20260414181919.png](attachments/Pasted image 20260414181919.png|Pasted image 20260414181919.png)
 
 So looking back at the searches I made for Flowise CVEs, CVE-2025-59528 stood out, an authenticated RCE in the CustomMCP node as it passes user-controlled input directly to a Function() constructor with full Node.js privileges, allowing an authenticated user with an API key to execute arbitrary OS commands as the Flowise process user. Though it was fixed in version 3.0.6.
 
@@ -26,10 +26,10 @@ The exploit will give you root in a container environment which isn't the same a
 
 FLOWISE_PASSWORD=F1l3_d0ck3rALLOW_UNAUTHORIZED_CERTS=trueNODE_VERSION=20.19.4HOSTNAME=c78c3cceb7baYARN_VERSION=1.22.22SMTP_PORT=1025SHLVL=1PORT=3000HOME=/rootSENDER_EMAIL=ben@silentium.htbPUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browserJWT_ISSUER=ISSUERJWT_AUTH_TOKEN_SECRET=AABBCCDDAABBCCDDAABBCCDDAABBCCDDAABBCCDDSMTP_USERNAME=testSMTP_SECURE=falseJWT_REFRESH_TOKEN_EXPIRY_IN_MINUTES=43200FLOWISE_USERNAME=benPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/binDATABASE_PATH=/root/.flowiseJWT_TOKEN_EXPIRY_IN_MINUTES=360JWT_AUDIENCE=AUDIENCESECRETKEY_PATH=/root/.flowisePWD=/SMTP_PASSWORD=r04D!!\_R4geSMTP_HOST=mailhogJWT_REFRESH_TOKEN_SECRET=AABBCCDDAABBCCDDAABBCCDDAABBCCDDAABBCCDDSMTP_USER=test/proc/1 # 
 
-![[attachments/Pasted image 20260414190025.png|Pasted image 20260414190025.png]]
+![attachments/Pasted image 20260414190025.png|Pasted image 20260414190025.png](attachments/Pasted image 20260414190025.png|Pasted image 20260414190025.png)
 
 
-![[attachments/Pasted image 20260414190545.png|Pasted image 20260414190545.png]]
+![attachments/Pasted image 20260414190545.png|Pasted image 20260414190545.png](attachments/Pasted image 20260414190545.png|Pasted image 20260414190545.png)
 
 
 Now use the password in /proc/1/environ, r04D!!\_R4ge is the one you want to use, letting you SSH as Ben and quickly claim the user flag.
