@@ -6,13 +6,13 @@ Obviously as usual you will connect to the HTB vpn and get the IP and view the w
 
 Navigating the main domain you won't find anything worth noting save for one thing, a /tools/variable-font-generator endpoint where you upload .designspace and Master font files (.ttf or .otf). Immediately, I knew this would be an attack path, just wasn't sure to what yet. Quick google search got me to know about CVE-2025-66034. An arbitrary file write due to a vulnerability in python's fonttools library. 
 
-![attachments/Pasted image 20260321222520.png|Pasted image 20260321222520.png](attachments/Pasted image 20260321222520.png|Pasted image 20260321222520.png)
+![](attachments/Pasted image 20260321222520.png)
 
 The issue? You need to know the exact path on the server to successfully write the files you need. Okay, now what? There was nothing else on the main domain. The answer? Enumeration. Subdomain and endpoint enumeration revealed a portal.variatype.htb subdomain that is a login page, at the bottom it says "Offline mode : enabled". So that explained why the injections failed, it doesn't communicate with any database, all checks happen locally. 
 
-![attachments/Pasted image 20260321222632.png|Pasted image 20260321222632.png](attachments/Pasted image 20260321222632.png|Pasted image 20260321222632.png)
+![](attachments/Pasted image 20260321222632.png)
 
-![attachments/Pasted image 20260321222657.png|Pasted image 20260321222657.png](attachments/Pasted image 20260321222657.png|Pasted image 20260321222657.png)
+![](attachments/Pasted image 20260321222657.png)
 
 So I was a bit stuck, then I looked back at the endpoints and directories I enumerated, an auth.php file that returned a 200 OK. I thought that was it. Turns out it was empty. Nothing there. The /files/ directory also wasn't going to be of help as it returned a 403. There was also /.git/ directory returning a 403. I was stuck.
 
@@ -22,7 +22,7 @@ For some reason when I entered these credentials it didn't work, then when I put
 
 Then I tried /download.php/f=....//download.php, I read the download.php file and found out the server path (/var/www/portal.variatype.htb/public/files/) . Now I can use the previously found fonttools CVE from the main domain to get a reverse shell. 
 
-![attachments/Pasted image 20260321222818.png|Pasted image 20260321222818.png](attachments/Pasted image 20260321222818.png|Pasted image 20260321222818.png)
+![](attachments/Pasted image 20260321222818.png)
 
 I used Symphony2Colour's repo ([symphony2colour/varlib-cve-2025-66034: Proof-of-concept exploit for CVE-2025-66034 in the fontTools variable font generation pipeline. A crafted .designspace file allows control of the output path, enabling arbitrary file writes. The script automates payload creation, font generation, and upload to demonstrate the issue.](https://github.com/symphony2colour/varlib-cve-2025-66034)) and code for exploitation but adjusted it to change the auth.php file in the code to dashboard.php.
 
@@ -30,9 +30,9 @@ Opened up my listener, launched the exploit, and then visited /files/dashboard.p
 
 There, I logged in as www-data. No user flag in sight, very low privileges. Another user named steve was there, so I tried 'cat /home/steve/user.txt', permission denied. Now I know where the first flag is but unable to access it, so I set up a simple http server and transferred pspy64 and linpeas.sh to use in the reverse shell session. Pspy64 was the key here, it showed that the user steve runs a cronjob where he opens the uploaded .ttf files with python's fontforge library. So I tried making .ttf file with just python code inside it for a reverse shell. But nope, it didn't work.
 
-![attachments/Pasted image 20260321222829.png|Pasted image 20260321222829.png](attachments/Pasted image 20260321222829.png|Pasted image 20260321222829.png)
+![](attachments/Pasted image 20260321222829.png)
 
-![attachments/Pasted image 20260321222854.png|Pasted image 20260321222854.png](attachments/Pasted image 20260321222854.png|Pasted image 20260321222854.png)
+![](attachments/Pasted image 20260321222854.png)
 
 So I searched for CVEs, found a fontforge CVE, command injection via malicious TAR archive name. It was time to execute, I set up the listener on my kali machine then went back to the reverse shell session and made the files.
 
