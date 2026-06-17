@@ -69,3 +69,4 @@ curl -X PUT "[http://127.0.0.1:8888/api/v1/repos/Boto/gethackedlol2/contents/sym
 Then I tried SSHing as root and it still asked for a password, there I went like "Uhh what's wrong?", I thought that my idea was wrong and wouldn't work because of some reason that my sleepy head can't figure out, maybe it was something with my actual request like missing parameters or headers. So I, like any good script kiddie would, found a script on github to exploit the CVE! Woo how fun. It was TYehan's script again. ([https://github.com/TYehan/CVE-2025-8110-Gogs-RCE-Exploit])
 
 This lets you get a reverse shell as root, letting you read the root flag and letting me get back to ULTRAKILL.
+
